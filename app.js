@@ -13,7 +13,8 @@ var articles = require('./routes/articles');
 var db = require('./db');
 var settings = require('./settings');
 var session = require('express-session');
-var MongoStore = require('connect-mongo')(session);
+var mongoose = require('mongoose');
+var MongoStore = require('connect-mongo/es5')(session);
 
 var app = express();
 
@@ -40,11 +41,12 @@ app.use(session({
     cookie: {maxAge: 1000 * 60 * 60 * 24 * 30},//设定 cookie 的生存期，这里我们设置 cookie 的生存期为 30 天
     resave:true,
     saveUninitialized:true,
-    store: new MongoStore({ //设置它的 store 参数为 MongoStore 实例，把会话信息存储到数据库中，以避免重启服务器时会话丢失
+    /*store: new MongoStore({ //设置它的 store 参数为 MongoStore 实例，把会话信息存储到数据库中，以避免重启服务器时会话丢失
         db: settings.db,
         host: settings.host,
         port: settings.port
-    })
+    })*/
+    store: new MongoStore({mongooseConnection: mongoose.connection})
 }));
 app.use(flash());
 app.use(function(req,res,next){
